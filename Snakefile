@@ -16,6 +16,7 @@ ref = 'data/ref/GCF_000001635.27_GRCm39_genomic.fna'
 gff = 'data/ref/GCF_000001635.27_GRCm39_genomic.gff'
 
 # containers
+bbmap = 'docker://ghcr.io/deardenlab/container-bbmap:bbmap_38.90'
 star = 'shub://TomHarrop/align-utils:star_2.7.6a'
 
 sample_table = pandas.read_csv(
@@ -92,12 +93,27 @@ rule star_index:
         '&> {log}'
 
 
-rule dummy_cp:
+rule trim:
     input:
         get_reads
     output:
-        'output/010_process/{sample}.r1.fastq'
+        r1 = 'output/010_process/{sample}.r1.fastq'
+    params:
+        adapters = '/adapters.fa'
+    log:
+        'output/logs/trim.{sample}.log'
+    threads:
+        1
+    resources:
+        time = 20,
     container:
-        star
+        bbmap
     shell:
-        'zcat {input} > {output}'
+        'bbduk.sh '
+        'in={input} '
+        'int=t '
+        'out={output.r1} '
+        'ref={params.adapters} '
+        'ktrim=r k=23 mink=11 hdist=1 tpe tbo qtrim=r trimq=15 '
+        '&> {log}'
+
