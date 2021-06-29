@@ -100,4 +100,4 @@ rule dummy_cp:
     container:
         star
     shell:
-        'cp {input} {output}'
+        'zcat {input} > {output}'
