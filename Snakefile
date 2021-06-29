@@ -37,14 +37,14 @@ rule star_first_pass:
     output:
         sjdb = 'output/025_star/pass1/{sample}.SJ.out.tab'
     threads:
-        20
+        10
     params:
         genome_dir = 'output/007_star-index',
         prefix = 'output/025_star/pass1/{sample}.'
     log:
         'output/logs/star_first_pass.{sample}.log'
     resources:
-        time = 120,
+        time = 59,
         mem_mb = 32 * 1000
     container:
         star
@@ -72,9 +72,9 @@ rule star_index:
     log:
         'output/logs/star_index.log'
     threads:
-        20
+        10
     resources:
-        time = 20,
+        time = 30,
         mem_mb = 32 * 1000
     container:
         star
