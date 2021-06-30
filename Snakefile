@@ -2,6 +2,15 @@
 
 import pandas
 from pathlib import Path
+from tempfile import mkdtemp
+
+
+def get_fastqc_reads(wildcards):
+    if wildcards.type == 'raw':
+        my_reads = get_reads(wildcards)
+        return my_reads
+    elif wildcards.type == 'processed':
+        return 'output/010_process/{sample}.r1.fastq.gz'
 
 
 def get_reads(wildcards):
@@ -38,7 +47,7 @@ rule target:
 
 rule star_second_pass:
     input:
-        r1 = 'output/010_process/{sample}.r1.fastq',
+        r1 = 'output/010_process/{sample}.r1.fastq.gz',
         star_reference = 'output/007_star-index/SA',
         junctions = expand('output/025_star/pass1/{sample}.SJ.out.tab',
                            sample=all_samples)
@@ -65,14 +74,16 @@ rule star_second_pass:
         '--outSAMtype BAM SortedByCoordinate '
         '--outReadsUnmapped Fastx '
         '--quantMode GeneCounts '
+        '--readFilesCommand zcat '
         '--readFilesIn {input.r1} '
         '--outFileNamePrefix {params.prefix} '
+        '--outTmpDir ' + mkdtemp() + ' '
         '&> {log}'
 
 
 rule star_first_pass:
     input:
-        r1 = 'output/010_process/{sample}.r1.fastq',
+        r1 = 'output/010_process/{sample}.r1.fastq.gz',
         star_reference = 'output/007_star-index/SA'
     output:
         sjdb = 'output/025_star/pass1/{sample}.SJ.out.tab'
@@ -96,6 +107,7 @@ rule star_first_pass:
         '--outSAMtype None '          # troubleshoot gtf
         # '--outSAMtype SAM '               # troubleshoot gtf
         # '--quantMode GeneCounts '       # troubleshoot gtf
+        '--readFilesCommand zcat '
         '--readFilesIn {input.r1} '
         '--outFileNamePrefix {params.prefix} '
         '&> {log}'
@@ -126,6 +138,7 @@ rule star_index:
         '--genomeFastaFiles {input.fasta} '
         '--sjdbGTFfile {input.gff} '
         '--genomeSAindexNbases 12 '
+        '--outTmpDir ' + mkdtemp() + ' '
         '--sjdbGTFtagExonParentTranscript Parent '
         '--sjdbGTFtagExonParentGene gene '
         # '--sjdbGTFtagExonParentGeneName Name '
@@ -133,12 +146,6 @@ rule star_index:
 
 
 # trim and qc
-def get_fastqc_reads(wildcards):
-    if wildcards.type == 'raw':
-        my_reads = get_reads(wildcards)
-        return my_reads
-    elif wildcards.type == 'processed':
-        return 'output/010_process/{sample}.r1.fastq'
 
 
 rule multiqc:
@@ -189,7 +196,7 @@ rule trim:
     input:
         get_reads
     output:
-        r1 = temp('output/010_process/{sample}.r1.fastq')
+        r1 = 'output/010_process/{sample}.r1.fastq.gz'
     params:
         adapters = '/adapters.fa'
     log:
@@ -204,8 +211,8 @@ rule trim:
     shell:
         'bbduk.sh '
         '-Xmx{resources.mem_mb}m '
+        'zl=9 '
         'in={input} '
-        'int=t '
         'out={output.r1} '
         'ref={params.adapters} '
         'ktrim=r k=23 mink=11 hdist=1 tpe tbo qtrim=r trimq=15 '
