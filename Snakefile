@@ -198,10 +198,12 @@ rule trim:
         1
     resources:
         time = 20,
+        mem_mb = 10 * 1000
     container:
         bbmap
     shell:
         'bbduk.sh '
+        '-Xmx{resources.mem_mb}m '
         'in={input} '
         'int=t '
         'out={output.r1} '
