@@ -189,7 +189,7 @@ rule trim:
     input:
         get_reads
     output:
-        r1 = 'output/010_process/{sample}.r1.fastq'
+        r1 = temp('output/010_process/{sample}.r1.fastq')
     params:
         adapters = '/adapters.fa'
     log:
