@@ -7,11 +7,14 @@ cluster:
     --mem={resources.mem_mb}
     --job-name=smk-{rule}-{wildcards}
     --output=logs/{rule}/{rule}-{wildcards}-%j.out
+    --parsable
+cluster-status:
+  status-sacct.sh
 default-resources:
   - partition=physical
   - mem_mb=1000
   - time=5
-restart-times: 3
+restart-times: 1
 max-jobs-per-second: 100
 max-status-checks-per-second: 10
 local-cores: 1

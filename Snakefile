@@ -10,7 +10,7 @@ def get_reads(wildcards):
     return(Path(reads_dir, my_filename).resolve().as_posix())
 
 
-config_file = 'config/sample_table.csv'
+config_file = 'config/rnaseq_filenames.csv'
 reads_dir = 'data/reads'
 ref = 'data/ref/GCF_000001635.27_GRCm39_genomic.fna'
 gff = 'data/ref/GCF_000001635.27_GRCm39_genomic.gff'
@@ -23,7 +23,7 @@ star = 'shub://TomHarrop/align-utils:star_2.7.6a'
 
 sample_table = pandas.read_csv(
     config_file,
-    index_col="sample_name")
+    index_col="samplename")
 all_samples = sorted(set(sample_table.index))
 
 
