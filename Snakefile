@@ -25,10 +25,12 @@ ref = 'data/ref/GCF_000001635.27_GRCm39_genomic.fna'
 gff = 'data/ref/GCF_000001635.27_GRCm39_genomic.gff'
 
 # containers
-bbmap = 'https://github.com/deardenlab/container-bbmap/releases/download/0.0.3/container-bbmap.bbmap_38.90.sif'
+bbmap = ('https://github.com/deardenlab/container-bbmap/'
+         'releases/download/0.0.3/container-bbmap.bbmap_38.90.sif')
 fastqc = 'docker://biocontainers/fastqc:v0.11.9_cv7'
 multiqc = 'docker://ewels/multiqc:1.9'
-star = 'shub://TomHarrop/align-utils:star_2.7.6a'
+star = ('https://github.com/deardenlab/container-star/'
+        'releases/download/0.0.1/container-star.2.7.9a.sif')
 
 sample_table = pandas.read_csv(
     config_file,
@@ -146,8 +148,6 @@ rule star_index:
 
 
 # trim and qc
-
-
 rule multiqc:
     input:
         expand('output/015_fastqc/{type}/{sample}.fastqc',
@@ -204,7 +204,7 @@ rule trim:
     threads:
         1
     resources:
-        time = 20,
+        time = 25,
         mem_mb = 10 * 1000
     container:
         bbmap
