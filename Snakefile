@@ -93,8 +93,8 @@ rule star_first_pass:
         '--runThreadN {threads} '
         '--genomeDir {params.genome_dir} '
         '--outSJfilterReads Unique '
-        '--outSAMtype None '          # troubleshoot gtf
-        # '--outSAMtype SAM '               # troubleshoot gtf
+        # '--outSAMtype None '          # troubleshoot gtf
+        '--outSAMtype SAM '               # troubleshoot gtf
         '--quantMode GeneCounts '       # troubleshoot gtf
         '--readFilesIn {input.r1} '
         '--outFileNamePrefix {params.prefix} '
