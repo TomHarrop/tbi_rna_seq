@@ -29,9 +29,11 @@ all_samples = sorted(set(sample_table.index))
 
 rule target:
     input:
-        expand('output/025_star/pass2/{sample}.Aligned.sortedByCoord.out.bam',
-               sample=all_samples),
-        'output/017_multiqc/multiqc_report.html'
+        # expand('output/025_star/pass2/{sample}.Aligned.sortedByCoord.out.bam',
+        #        sample=all_samples),
+        # 'output/017_multiqc/multiqc_report.html',
+        # troubleshooting GTF
+        'output/025_star/pass1/C_M_T_61.SJ.out.tab'
 
 
 rule star_second_pass:
@@ -93,7 +95,7 @@ rule star_first_pass:
         '--outSJfilterReads Unique '
         '--outSAMtype None '          # troubleshoot gtf
         # '--outSAMtype SAM '               # troubleshoot gtf
-        # '--quantMode GeneCounts '       # troubleshoot gtf
+        '--quantMode GeneCounts '       # troubleshoot gtf
         '--readFilesIn {input.r1} '
         '--outFileNamePrefix {params.prefix} '
         '&> {log}'
@@ -125,7 +127,7 @@ rule star_index:
         '--sjdbGTFfile {input.gff} '
         '--genomeSAindexNbases 12 '
         '--sjdbGTFtagExonParentTranscript Parent '
-        '--sjdbGTFtagExonParentGene locus_tag '
+        '--sjdbGTFtagExonParentGene gene '
         # '--sjdbGTFtagExonParentGeneName Name '
         '&> {log}'
 

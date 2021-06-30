@@ -1,16 +1,16 @@
-cluster:
-  mkdir -p logs/{rule} &&
-  sbatch
-    --time={resources.time}
-    --partition={resources.partition}
-    --cpus-per-task={threads}
-    --mem={resources.mem_mb}
-    --job-name=smk-{rule}-{wildcards}
-    --output=logs/{rule}/{rule}-{wildcards}-%j.out
-default-resources:
-  - partition=physical
-  - mem_mb=1000
-  - time=5
+# cluster:
+#   mkdir -p logs/{rule} &&
+#   sbatch
+#     --time={resources.time}
+#     --partition={resources.partition}
+#     --cpus-per-task={threads}
+#     --mem={resources.mem_mb}
+#     --job-name=smk-{rule}-{wildcards}
+#     --output=logs/{rule}/{rule}-{wildcards}-%j.out
+# default-resources:
+#   - partition=physical
+#   - mem_mb=1000
+#   - time=5
 restart-times: 3
 max-jobs-per-second: 100
 max-status-checks-per-second: 10
