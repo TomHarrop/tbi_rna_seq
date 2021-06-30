@@ -154,6 +154,8 @@ rule multiqc:
         outdir = 'output/017_multiqc'
     log:
         'output/logs/multiqc.log'
+    resources:
+        time = 59,
     container:
         multiqc
     shell:
