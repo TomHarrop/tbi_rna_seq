@@ -3,7 +3,13 @@
 import pandas
 from pathlib import Path
 from tempfile import mkdtemp
+import shutil
 
+
+def dontmaketempdir():
+    mytemp = Path(mkdtemp())
+    shutil.rmtree(mytemp)
+    return mytemp.resolve().as_posix()
 
 def get_fastqc_reads(wildcards):
     if wildcards.type == 'raw':
@@ -79,7 +85,7 @@ rule star_second_pass:
         '--readFilesCommand zcat '
         '--readFilesIn {input.r1} '
         '--outFileNamePrefix {params.prefix} '
-        '--outTmpDir ' + mkdtemp() + ' '
+        '--outTmpDir ' + dontmaketempdir() + ' '
         '&> {log}'
 
 
@@ -140,7 +146,7 @@ rule star_index:
         '--genomeFastaFiles {input.fasta} '
         '--sjdbGTFfile {input.gff} '
         '--genomeSAindexNbases 12 '
-        '--outTmpDir ' + mkdtemp() + ' '
+        '--outTmpDir ' + dontmaketempdir() + ' '
         '--sjdbGTFtagExonParentTranscript Parent '
         '--sjdbGTFtagExonParentGene gene '
         # '--sjdbGTFtagExonParentGeneName Name '
