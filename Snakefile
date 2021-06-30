@@ -210,7 +210,7 @@ rule trim:
     threads:
         1
     resources:
-        time = 25,
+        time = 35,
         mem_mb = 10 * 1000
     container:
         bbmap
