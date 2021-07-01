@@ -154,9 +154,10 @@ rule star_index:
 # trim and qc
 rule multiqc:
     input:
-        expand('output/015_fastqc/{type}/{sample}.fastqc',
-               type=['raw', 'processed'],
-               sample=all_samples),
+        # multiqc is too slow to run on spartan
+        # expand('output/015_fastqc/{type}/{sample}.fastqc',
+        #        type=['raw', 'processed'],
+        #        sample=all_samples),
         expand('output/025_star/pass2/{sample}.ReadsPerGene.out.tab',
                sample=all_samples)
     output:
@@ -164,8 +165,8 @@ rule multiqc:
     params:
         outdir = 'output/017_multiqc',
         indirs = [
-            'output/025_star/pass2',
-            'output/015_fastqc']
+            'output/025_star/pass2']
+            # 'output/015_fastqc']
     log:
         'output/logs/multiqc.log'
     resources:
