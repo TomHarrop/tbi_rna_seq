@@ -5,6 +5,10 @@ from pathlib import Path
 from tempfile import mkdtemp
 
 
+#############
+# FUNCTIONS #
+#############
+
 def dontmaketempdir():
     return Path(mkdtemp(), 'tmp').resolve().as_posix()
 
@@ -23,6 +27,10 @@ def get_reads(wildcards):
     return(Path(reads_dir, my_filename).resolve().as_posix())
 
 
+###########
+# GLOBALS #
+###########
+
 config_file = 'config/rnaseq_filenames.csv'
 reads_dir = 'data/reads'
 ref = 'data/ref/GCF_000001635.27_GRCm39_genomic.fna'
@@ -36,19 +44,32 @@ multiqc = 'docker://ewels/multiqc:1.9'
 star = ('https://github.com/deardenlab/container-star/'
         'releases/download/0.0.1/container-star.2.7.9a.sif')
 
+
+########
+# MAIN #
+########
+
 sample_table = pandas.read_csv(
     config_file,
     index_col="samplename")
 all_samples = sorted(set(sample_table.index))
 
 
+#########
+# RULES #
+#########
+
 rule target:
     input:
+        # mapped reads with gene counts
         expand('output/025_star/pass2/{sample}.Aligned.sortedByCoord.out.bam',
                sample=all_samples),
+        # fastqc on raw and processed reads
+        expand('output/015_fastqc/{type}/{sample}.fastqc',
+               type=['raw', 'processed'],
+               sample=all_samples),
+        # multiqc report on mapping rates
         'output/017_multiqc/multiqc_report.html',
-        # troubleshooting GTF
-        # 'output/025_star/pass1/C_M_T_61.SJ.out.tab'
 
 
 rule star_second_pass:
@@ -86,7 +107,6 @@ rule star_second_pass:
         '--outTmpDir ' + dontmaketempdir() + ' '
         '&> {log}'
 
-
 rule star_first_pass:
     input:
         r1 = 'output/010_process/{sample}.r1.fastq.gz',
@@ -117,7 +137,6 @@ rule star_first_pass:
         '--readFilesIn {input.r1} '
         '--outFileNamePrefix {params.prefix} '
         '&> {log}'
-
 
 rule star_index:
     input:
@@ -150,14 +169,12 @@ rule star_index:
         # '--sjdbGTFtagExonParentGeneName Name '
         '&> {log}'
 
-
 # trim and qc
+# Would prefer to run multiqc on the whole output folder but it's too slow to
+# run on spartan. Just running on the STAR output for convenient mapping
+# stats.
 rule multiqc:
     input:
-        # multiqc is too slow to run on spartan
-        # expand('output/015_fastqc/{type}/{sample}.fastqc',
-        #        type=['raw', 'processed'],
-        #        sample=all_samples),
         expand('output/025_star/pass2/{sample}.ReadsPerGene.out.tab',
                sample=all_samples)
     output:
@@ -166,7 +183,6 @@ rule multiqc:
         outdir = 'output/017_multiqc',
         indirs = [
             'output/025_star/pass2']
-            # 'output/015_fastqc']
     log:
         'output/logs/multiqc.log'
     resources:
