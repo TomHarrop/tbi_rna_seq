@@ -3,13 +3,11 @@
 import pandas
 from pathlib import Path
 from tempfile import mkdtemp
-import shutil
 
 
 def dontmaketempdir():
-    mytemp = Path(mkdtemp())
-    shutil.rmtree(mytemp)
-    return mytemp.resolve().as_posix()
+    return Path(mkdtemp(), 'tmp').resolve().as_posix()
+
 
 def get_fastqc_reads(wildcards):
     if wildcards.type == 'raw':
@@ -164,7 +162,10 @@ rule multiqc:
     output:
         'output/017_multiqc/multiqc_report.html'
     params:
-        outdir = 'output/017_multiqc'
+        outdir = 'output/017_multiqc',
+        indirs = [
+            'output/025_star/pass2',
+            'output/015_fastqc']
     log:
         'output/logs/multiqc.log'
     resources:
@@ -174,7 +175,7 @@ rule multiqc:
     shell:
         'multiqc '
         '-o {params.outdir} '
-        'output '
+        '{params.indirs} '
         '2> {log}'
 
 
