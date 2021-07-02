@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+
+import pandas
+from pathlib import Path
+
+
+# FUNCTIONS
+def get_reads(wildcards):
+    my_sample = wildcards.sample
+    my_filename = sample_table.loc[my_sample]['filename']
+    return(Path(read_directory, my_filename).resolve().as_posix())
+
+
+# GLOBAL OPTIONS (GLOBALS)
+config_file = 'config/rnaseq_filenames.csv'
+read_directory = 'data/reads'
+
+# containers
+bbmap = ('https://github.com/deardenlab/container-bbmap/'
+         'releases/download/0.0.3/container-bbmap.bbmap_38.90.sif')
+fastqc = 'docker://biocontainers/fastqc:v0.11.9_cv7'
+multiqc = 'docker://ewels/multiqc:1.9'
+star = ('https://github.com/deardenlab/container-star/'
+        'releases/download/0.0.1/container-star.2.7.9a.sif')
+
+# MAIN
+sample_table = pandas.read_csv(
+    config_file,
+    index_col='samplename')
+all_samples = sorted(set(sample_table.index))
+
+
+# RULES
+rule target:
+    input:
+        expand('output/010_trimmed/{sample}.fastq.gz',
+               sample=all_samples)
+
+
+# trim adaptors
+rule trim:
+    input:
+        get_reads
+    output:
+        reads = 'output/010_trimmed/{sample}.fastq.gz',
+        stats = 'output/010_trimmed/{sample}.stats.txt'
+    threads:
+        1
+    log:
+        'output/logs/trim.{sample}.log'
+    params:
+        adaptors = '/adapters.fa'
+    resources:
+        time = 59,
+        mem_mb = 10000      # 10 GB
+    container:
+        bbmap
+    shell:
+        # cutadapt is more common
+        # bbmap: https://jgi.doe.gov/data-and-tools/bbtools/
+        'bbduk.sh '
+        '-Xmx{resources.mem_mb}m '
+        'in={input} '
+        'out={output.reads} '
+        'stats={output.stats} '
+        'ref={params.adaptors} '
+        'zl=9 '
+        'ktrim=r k=23 mink=11 hdist=1 qtrim=r trimq=15 '
+        '&> {log}'
+
+
+# read qc
+# https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+# rule fastqc:
+#     input:
+        # raw files
+        # trimmed file
+
+
+# mapping (i use STAR): https://github.com/alexdobin/STAR
+# must be splice-aware 
+# 1. generate index
+# 2. first-pass mapping (find splice junction)
+    #output:
+     #   'output/020_map/pass1'
+# 3. second-pass mapping (uses splices from 2 for mapping)
+#    output:
+#        'output/020_map/pass2/{sample}.bam'
+#       - output is BAM files and count files
+
+
+# alignment qc
+# multiqc: https://github.com/ewels/MultiQC
+# ONLY ON THE STAR OUTPUT! (second pass output/020_map/pass2)
+
+# copy results (pull from spartan on your laptop)
+# scp -r tharrop@spartan.hpc.unimelb.edu.au://home/tharrop/project/output/multiqc_results .
+

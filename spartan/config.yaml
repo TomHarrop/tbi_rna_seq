@@ -25,4 +25,9 @@ rerun-incomplete: True
 printshellcmds: True
 scheduler: greedy
 use-singularity: True
-singularity-args: "-B $PWD,$TMPDIR --nv -H $(mktemp -d) --pwd $PWD --containall --cleanenv --writable-tmpfs"
+singularity-args: >
+  "-B $PWD,$TMPDIR 
+  --nv 
+  -H $(mktemp -d) 
+  --pwd $PWD 
+  --containall --cleanenv --writable-tmpfs"
