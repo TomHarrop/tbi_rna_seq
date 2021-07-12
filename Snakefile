@@ -157,7 +157,7 @@ rule star_index:
         star
     shell:
         'STAR '
-        'runThreadN {threads} '
+        '--runThreadN {threads} '
         '--runMode genomeGenerate '
         '--genomeDir {params.outdir} '
         '--genomeFastaFiles {input.fasta} '
