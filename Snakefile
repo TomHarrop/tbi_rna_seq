@@ -81,6 +81,8 @@ rule deseq_wald:
         injury_results = 'output/030_deseq/injury_results.csv',
         group1_results = 'output/030_deseq/group1_results.csv',
         group2_results = 'output/030_deseq/group2_results.csv'
+    log:
+        'output/logs/deseq_wald.log'
     threads:
         10
     resources:
