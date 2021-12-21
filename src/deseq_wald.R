@@ -8,7 +8,7 @@ sink(log,
      append = TRUE,
      type = "output")
 
-library(deseq2)
+library(DESeq2)
 library(data.table)
 library(ggplot2)
 
