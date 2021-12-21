@@ -43,8 +43,7 @@ fastqc = 'docker://biocontainers/fastqc:v0.11.9_cv7'
 multiqc = 'docker://ewels/multiqc:1.9'
 star = ('https://github.com/deardenlab/container-star/'
         'releases/download/0.0.1/container-star.2.7.9a.sif')
-bioconductor = ('shub://TomHarrop/r-containers:bioconductor_3.11'
-                '@ae3e49fbdb6c7a9a05fc5b88cc55ac3663b40036')
+bioconductor = ('shub://TomHarrop/r-containers:bioconductor_3.11')
 
 ########
 # MAIN #
