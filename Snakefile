@@ -87,7 +87,7 @@ rule deseq_wald:
         10
     resources:
         time = 5,
-        mem_mb = 1000
+        mem_mb = 10*1000
     container:
         bioconductor
     script:
