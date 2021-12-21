@@ -43,7 +43,8 @@ fastqc = 'docker://biocontainers/fastqc:v0.11.9_cv7'
 multiqc = 'docker://ewels/multiqc:1.9'
 star = ('https://github.com/deardenlab/container-star/'
         'releases/download/0.0.1/container-star.2.7.9a.sif')
-
+bioconductor = ('shub://TomHarrop/r-containers:bioconductor_3.11'
+                '@ae3e49fbdb6c7a9a05fc5b88cc55ac3663b40036')
 
 ########
 # MAIN #
@@ -64,12 +65,52 @@ rule target:
         # mapped reads with gene counts
         expand('output/025_star/pass2/{sample}.Aligned.sortedByCoord.out.bam',
                sample=all_samples),
+        # exploratory deseq2 analysis
+        'output/030_deseq/injury_results.csv',
         # fastqc on raw and processed reads
         expand('output/015_fastqc/{type}/{sample}.fastqc',
                type=['raw', 'processed'],
                sample=all_samples),
         # multiqc report on mapping rates
         'output/017_multiqc/multiqc_report.html',
+
+
+rule deseq_wald:
+    input:
+        dds = 'output/030_deseq/dds.Rds'
+    output:
+        injury_results = 'output/030_deseq/injury_results.csv',
+        group1_results = 'output/030_deseq/group1_results.csv',
+        group2_results = 'output/030_deseq/group2_results.csv'
+    threads:
+        10
+    resources:
+        time = 5,
+        mem_mb = 1000
+    container:
+        bioconductor
+    script:
+        'src/deseq_wald.R'
+
+
+rule generate_deseq_object:
+    input:
+        quant_files = expand(
+            'output/025_star/pass2/{sample}.ReadsPerGene.out.tab',
+            sample=all_samples)
+    output:
+        dds = 'output/030_deseq/dds.Rds'
+    log:
+        'output/logs/generate_deseq_object.log'
+    container:
+        bioconductor
+    threads:
+        1
+    resources:
+        time = 5,
+        mem_mb = 1000
+    script:
+        'src/generate_deseq_object.R'
 
 
 rule star_second_pass:
