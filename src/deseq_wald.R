@@ -23,7 +23,7 @@ threads <- snakemake@threads
 # threads <- 8
 
 BiocParallel::register(
-    BiocParallel::MulticoreParam(workers = 8))
+    BiocParallel::MulticoreParam(workers = threads))
 
 #############
 # FILTERING #
